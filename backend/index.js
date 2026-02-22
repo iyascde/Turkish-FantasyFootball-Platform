@@ -5,6 +5,7 @@ const pool = require('./db');
 const authRoutes = require('./routes/auth');
 const leagueRoutes = require('./routes/leagues');
 const footballRoutes = require('./routes/football');
+const predictionRoutes = require('./routes/predictions');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -29,6 +30,7 @@ app.get('/test-db', async (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/leagues', leagueRoutes);
 app.use('/api/football', footballRoutes);
+app.use('/api/predictions', predictionRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
