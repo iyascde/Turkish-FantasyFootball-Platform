@@ -19,7 +19,6 @@ function Predictions() {
   const fetchFixtures = async () => {
     try {
       const res = await getFixtures();
-      // Only show upcoming fixtures
       const upcoming = res.data.response.filter(
         (f) => f.fixture.status.short === 'FT'
       ).slice(0, 10);
@@ -32,10 +31,7 @@ function Predictions() {
   const handlePrediction = (fixtureId, team, value) => {
     setPredictions((prev) => ({
       ...prev,
-      [fixtureId]: {
-        ...prev[fixtureId],
-        [team]: value
-      }
+      [fixtureId]: { ...prev[fixtureId], [team]: value }
     }));
   };
 
@@ -61,74 +57,114 @@ function Predictions() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#1a1a2e', color: 'white', fontFamily: 'Arial, sans-serif' }}>
-      <div style={{ background: '#e8201a', padding: '16px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ fontSize: '1.5rem' }}>⚽ Türk Fantezi Futbol</h1>
-        <button onClick={() => navigate('/dashboard')} style={{ background: 'white', color: '#e8201a', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
-          Back to Dashboard
+    <div style={{ minHeight: '100vh', background: '#0a0a0f', color: 'white', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+      {/* Navbar */}
+      <nav style={{
+        background: 'rgba(10,10,15,0.95)',
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
+        padding: '0 40px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        height: '64px',
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
+        backdropFilter: 'blur(12px)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '1.4rem' }}>⚽</span>
+          <span style={{ fontWeight: '700', fontSize: '1.1rem', letterSpacing: '-0.3px' }}>Türk Fantezi</span>
+        </div>
+        <button onClick={() => navigate('/dashboard')} style={{
+          background: 'rgba(255,255,255,0.06)',
+          color: 'white',
+          border: '1px solid rgba(255,255,255,0.1)',
+          padding: '8px 18px',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          fontWeight: '600',
+          fontSize: '0.9rem'
+        }}>
+          ← Dashboard
         </button>
+      </nav>
+
+      {/* Hero */}
+      <div style={{
+        background: 'linear-gradient(135deg, #e8201a 0%, #9b0f0b 100%)',
+        padding: '32px 40px',
+        borderBottom: '1px solid rgba(255,255,255,0.05)'
+      }}>
+        <h1 style={{ fontSize: '1.8rem', fontWeight: '800', letterSpacing: '-0.5px', marginBottom: '4px' }}>Match Predictions</h1>
+        <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.95rem' }}>Predict scores and earn points on the leaderboard</p>
       </div>
 
-      <div style={{ padding: '32px' }}>
-        <h2 style={{ marginBottom: '24px' }}>Match Predictions</h2>
-        <p style={{ color: '#aaa', marginBottom: '24px' }}>Predict the score for upcoming Süper Lig matches and earn points!</p>
-
-        <div style={{ display: 'grid', gap: '16px' }}>
-          {fixtures.length === 0 && (
-            <p style={{ color: '#aaa' }}>No upcoming fixtures available right now.</p>
-          )}
-          {fixtures.map((fixture) => (
-            <div key={fixture.fixture.id} style={{ background: '#2a2a4e', padding: '20px', borderRadius: '10px' }}>
-              <p style={{ color: '#aaa', fontSize: '0.85rem', marginBottom: '12px' }}>
-                {new Date(fixture.fixture.date).toLocaleDateString('tr-TR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-              </p>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
-                  <img src={fixture.teams.home.logo} alt={fixture.teams.home.name} style={{ width: '36px' }} />
-                  <span style={{ fontWeight: 'bold' }}>{fixture.teams.home.name}</span>
+      <div style={{ padding: '32px 40px' }}>
+        {fixtures.length === 0 ? (
+          <p style={{ color: 'rgba(255,255,255,0.4)' }}>No fixtures available right now.</p>
+        ) : (
+          <div style={{ display: 'grid', gap: '12px', maxWidth: '800px' }}>
+            {fixtures.map((fixture) => (
+              <div key={fixture.fixture.id} style={{
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                padding: '20px 24px',
+                borderRadius: '12px'
+              }}>
+                <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.78rem', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  {new Date(fixture.fixture.date).toLocaleDateString('tr-TR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
+                    <img src={fixture.teams.home.logo} alt={fixture.teams.home.name} style={{ width: '32px', objectFit: 'contain' }} />
+                    <span style={{ fontWeight: '700', fontSize: '0.95rem' }}>{fixture.teams.home.name}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input
+                      type="number" min="0" max="20" placeholder="0"
+                      onChange={(e) => handlePrediction(fixture.fixture.id, 'home', e.target.value)}
+                      style={{
+                        width: '52px', padding: '10px', textAlign: 'center',
+                        borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)',
+                        background: 'rgba(255,255,255,0.06)', color: 'white',
+                        fontSize: '1.1rem', fontWeight: '700', outline: 'none'
+                      }}
+                    />
+                    <span style={{ fontWeight: '800', fontSize: '1rem', color: 'rgba(255,255,255,0.3)' }}>—</span>
+                    <input
+                      type="number" min="0" max="20" placeholder="0"
+                      onChange={(e) => handlePrediction(fixture.fixture.id, 'away', e.target.value)}
+                      style={{
+                        width: '52px', padding: '10px', textAlign: 'center',
+                        borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)',
+                        background: 'rgba(255,255,255,0.06)', color: 'white',
+                        fontSize: '1.1rem', fontWeight: '700', outline: 'none'
+                      }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, justifyContent: 'flex-end' }}>
+                    <span style={{ fontWeight: '700', fontSize: '0.95rem' }}>{fixture.teams.away.name}</span>
+                    <img src={fixture.teams.away.logo} alt={fixture.teams.away.name} style={{ width: '32px', objectFit: 'contain' }} />
+                  </div>
                 </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <input
-                    type="number"
-                    min="0"
-                    max="20"
-                    placeholder="0"
-                    onChange={(e) => handlePrediction(fixture.fixture.id, 'home', e.target.value)}
-                    style={{ width: '50px', padding: '8px', textAlign: 'center', borderRadius: '6px', border: 'none', fontSize: '1.1rem', fontWeight: 'bold' }}
-                  />
-                  <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>-</span>
-                  <input
-                    type="number"
-                    min="0"
-                    max="20"
-                    placeholder="0"
-                    onChange={(e) => handlePrediction(fixture.fixture.id, 'away', e.target.value)}
-                    style={{ width: '50px', padding: '8px', textAlign: 'center', borderRadius: '6px', border: 'none', fontSize: '1.1rem', fontWeight: 'bold' }}
-                  />
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, justifyContent: 'flex-end' }}>
-                  <span style={{ fontWeight: 'bold' }}>{fixture.teams.away.name}</span>
-                  <img src={fixture.teams.away.logo} alt={fixture.teams.away.name} style={{ width: '36px' }} />
+                <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'center' }}>
+                  {submitted[fixture.fixture.id] ? (
+                    <span style={{ color: '#4ade80', fontWeight: '700', fontSize: '0.9rem' }}>✓ Prediction submitted</span>
+                  ) : (
+                    <button onClick={() => handleSubmit(fixture)} style={{
+                      background: '#e8201a', color: 'white', border: 'none',
+                      padding: '9px 28px', borderRadius: '8px', cursor: 'pointer',
+                      fontWeight: '700', fontSize: '0.9rem'
+                    }}>
+                      Submit
+                    </button>
+                  )}
                 </div>
               </div>
-
-              <div style={{ marginTop: '16px', textAlign: 'center' }}>
-                {submitted[fixture.fixture.id] ? (
-                  <span style={{ color: '#4caf50', fontWeight: 'bold' }}>✓ Prediction Submitted!</span>
-                ) : (
-                  <button
-                    onClick={() => handleSubmit(fixture)}
-                    style={{ background: '#e8201a', color: 'white', border: 'none', padding: '8px 24px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
-                  >
-                    Submit Prediction
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
